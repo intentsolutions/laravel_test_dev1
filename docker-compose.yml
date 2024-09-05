@@ -1,0 +1,41 @@
+version: '2'
+services:
+    php-apache-dev:
+        build: ./Docker/php/
+        ports:
+            - '80:80'
+            - '443:443'
+        links:
+            - 'mysql-db:db'
+        depends_on: [ ]
+        working_dir: /var/www/html
+        environment:
+            - PHP_DISPLAY_ERRORS=1
+            - WEB_DOCUMENT_ROOT=/var/www/html/public
+            - APPLICATION_PATH=/app
+            - php.post_max_size=2000M
+            - php.upload_max_filesize=2000M
+            - php.max_execution_time=600
+            - XDEBUG_IDE_KEY=PHPSTORM
+        volumes:
+            - './:/var/www/html/'
+
+    php-for-composer-and-migrations-dev:
+        image: 'webdevops/php-apache-dev:8.2'
+        links:
+            - 'mysql-db:db'
+        depends_on: [ ]
+        working_dir: /var/www/html
+        command: ./deploy.sh
+        volumes:
+            - './:/var/www/html/'
+    mysql-db:
+        image: "mysql:5.7"
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: demo1234
+            MYSQL_DATABASE: laravel
+        volumes:
+            - ./mysql:/var/lib/mysql
+
